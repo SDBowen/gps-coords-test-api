@@ -1,4 +1,3 @@
-const querystring = require("querystring");
 const https = require("https");
 
 const public_key = "d37555ccc09141848543ab21e287b560";
@@ -33,15 +32,15 @@ sendCoords = (lat, lon) => {
     }
   };
 
-  var req = https.request(options, function(res) {
-    var chunks = [];
+  let req = https.request(options, function(res) {
+    let chunks = [];
 
-    res.on("data", function(chunk) {
+    res.on("data", chunk => {
       chunks.push(chunk);
     });
 
-    res.on("end", function() {
-      var body = Buffer.concat(chunks);
+    res.on("end", () => {
+      let body = Buffer.concat(chunks);
       console.log(body.toString());
     });
   });
