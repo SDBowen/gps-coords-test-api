@@ -3,23 +3,29 @@ const https = require("https");
 const public_key = "d37555ccc09141848543ab21e287b560";
 const url = `https://lapi.transitchicago.com/api/1.0/ttpositions.aspx?key=${public_key}&rt=blue&outputType=JSON`;
 
-https.get(url, res => {
-  res.setEncoding("utf8");
-  let body = "";
-  res.on("data", data => {
-    body += data;
+setInterval(() => {
+  getCoords();
+}, 15000);
+
+let getCoords = () => {
+  https.get(url, res => {
+    res.setEncoding("utf8");
+    let body = "";
+    res.on("data", data => {
+      body += data;
+    });
+    res.on("end", () => {
+      body = JSON.parse(body);
+
+      trainOne = body.ctatt.route[0].train[0];
+
+      let lat = trainOne.lat;
+      let lon = trainOne.lon;
+
+      sendCoords(lat, lon);
+    });
   });
-  res.on("end", () => {
-    body = JSON.parse(body);
-
-    trainOne = body.ctatt.route[0].train[0];
-
-    let lat = trainOne.lat;
-    let lon = trainOne.lon;
-
-    sendCoords(lat, lon);
-  });
-});
+};
 
 sendCoords = (lat, lon) => {
   var options = {
