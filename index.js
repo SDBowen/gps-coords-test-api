@@ -3,6 +3,12 @@ const https = require("https");
 const public_key = "d37555ccc09141848543ab21e287b560";
 const url = `https://lapi.transitchicago.com/api/1.0/ttpositions.aspx?key=${public_key}&rt=blue&outputType=JSON`;
 
+const server = https.createServer((req, res) => {
+  res.end("Test API service started");
+});
+
+server.listen(process.env.PORT || 3000);
+
 setInterval(() => {
   getCoords();
 }, 15000);
