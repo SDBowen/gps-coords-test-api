@@ -22,6 +22,7 @@ let getCoords = () => {
       let lat = trainOne.lat;
       let lon = trainOne.lon;
 
+      console.log("Sending coordinates...");
       sendCoords(lat, lon);
     });
   });
