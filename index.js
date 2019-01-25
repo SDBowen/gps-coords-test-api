@@ -17,7 +17,7 @@ setInterval(() => {
 
   setTimeout(() => {
     getCoordsAgain();
-  }, 12000);
+  }, 8000);
 }, 15000);
 
 let getCoords = () => {
