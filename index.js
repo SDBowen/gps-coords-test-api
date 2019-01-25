@@ -11,8 +11,13 @@ const server = https.createServer((req, res) => {
 server.listen(process.env.PORT || 3000);
 
 setInterval(() => {
-  getCoords();
-  getCoordsAgain();
+  setTimeout(() => {
+    getCoords();
+  }, 0);
+
+  setTimeout(() => {
+    getCoordsAgain();
+  }, 12000);
 }, 15000);
 
 let getCoords = () => {
