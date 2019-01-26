@@ -1,68 +1,95 @@
-const https = require("https");
+const http = require("http");
 
-const public_key = "d37555ccc09141848543ab21e287b560";
-const chicagoUrl = `https://lapi.transitchicago.com/api/1.0/ttpositions.aspx?key=${public_key}&rt=blue&outputType=JSON`;
-const laUrl = "https://api.metro.net/agencies/lametro/routes/10/vehicles/";
+let CTA_TRAIN_KEY = process.env.CTA_TRAIN_KEY;
+let CTA_BUS_KEY = process.env.CTA_BUS_KEY;
 
-const server = https.createServer((req, res) => {
+const chicagoTrainUrl = `http://lapi.transitchicago.com/api/1.0/ttpositions.aspx?key=${CTA_TRAIN_KEY}&rt=blue&outputType=JSON`;
+
+const laUrl = "http://api.metro.net/agencies/lametro/routes/10/vehicles/";
+
+const chicagoBusUrl = `http://www.ctabustracker.com/bustime/api/v2/getvehicles?key=${CTA_BUS_KEY}&rt=22,9,20,53&format=json`;
+
+const server = http.createServer((req, res) => {
   res.end("Test API service started");
 });
 
 server.listen(process.env.PORT || 3000);
 
+// blue
+// Ashland 9
+// Madison 20
+// Clark 22
+// Pulaski 53
+
 setInterval(() => {
   setTimeout(() => {
-    getCoords();
+    getApiData(chicagoTrainUrl, formatTrainCoords);
+  }, 7000);
+
+  setTimeout(() => {
+    getApiData(chicagoBusUrl, formatBusCoords);
   }, 0);
 
   setTimeout(() => {
-    getCoordsAgain();
-  }, 8000);
+    getApiData(laUrl, formatLaCoords);
+  }, 12000);
 }, 15000);
 
-let getCoords = () => {
-  https.get(chicagoUrl, res => {
-    res.setEncoding("utf8");
-    let body = "";
-    res.on("data", data => {
-      body += data;
-    });
-    res.on("end", () => {
-      body = JSON.parse(body);
+let formatLaCoords = data => {
+  let lat = data.items[0].latitude;
+  let lon = data.items[0].longitude;
 
-      trainOne = body.ctatt.route[0].train[0];
+  sendCoords(lat, lon, "ladowntown");
+};
 
-      let lat = trainOne.lat;
-      let lon = trainOne.lon;
+let formatTrainCoords = data => {
+  let lat = data.ctatt.route[0].train[0].lat;
+  let lon = data.ctatt.route[0].train[0].lon;
 
-      console.log("Sending Chicago coordinates...");
-      sendCoords(lat, lon, "ctablue");
+  sendCoords(lat, lon, "ctablue");
+};
+
+let formatBusCoords = data => {
+  let parsedData = data["bustime-response"].vehicle;
+
+  ["9", "20", "22", "53"].forEach(route => {
+    parsedData.some(bus => {
+      let busDetail = {};
+
+      if (bus.rt === route) {
+        busDetail.lat = bus.lat;
+        busDetail.lon = bus.lon;
+        busDetail.id = `cta${route}`;
+
+        setTimeout(() => {
+          sendCoords(busDetail.lat, busDetail.lon, busDetail.id);
+        }, (Math.floor(Math.random() * 10) + 1) * 1000);
+      }
+      return bus.rt === route;
     });
   });
 };
 
-let getCoordsAgain = () => {
-  https.get(laUrl, res => {
+let getApiData = (url, callback) => {
+  http.get(url, res => {
     res.setEncoding("utf8");
     let body = "";
     res.on("data", data => {
       body += data;
     });
     res.on("end", () => {
-      body = JSON.parse(body);
+      apiData = JSON.parse(body);
 
-      bus = body.items[0];
-
-      let lat = bus.latitude;
-      let lon = bus.longitude;
-
-      console.log("Sending LA coordinates...");
-      sendCoords(lat, lon, "ladowntown");
+      callback(apiData);
     });
   });
 };
 
 sendCoords = (lat, lon, deviceId) => {
+  console.log(`Sending ${deviceId} coordinates...`);
+  console.log(`lat: ${lat}`);
+  console.log(`lon: ${lon}`);
+
   var options = {
     method: "POST",
     hostname: "intense-everglades-50142.herokuapp.com",
@@ -73,7 +100,7 @@ sendCoords = (lat, lon, deviceId) => {
     }
   };
 
-  let req = https.request(options, function(res) {
+  let req = http.request(options, function(res) {
     let chunks = [];
 
     res.on("data", chunk => {
