@@ -7,7 +7,7 @@ const chicagoTrainUrl = `http://lapi.transitchicago.com/api/1.0/ttpositions.aspx
 
 const laUrl = "http://api.metro.net/agencies/lametro/routes/10/vehicles/";
 
-const chicagoBusUrl = `http://www.ctabustracker.com/bustime/api/v2/getvehicles?key=${CTA_BUS_KEY}&rt=22,9,20,53&format=json`;
+const chicagoBusUrl = `http://www.ctabustracker.com/bustime/api/v2/getvehicles?key=${CTA_BUS_KEY}&rt=4,9,20,22,34,49,53,55,60,62&format=json`;
 
 const server = http.createServer((req, res) => {
   res.end("Test API service started");
@@ -24,7 +24,7 @@ server.listen(process.env.PORT || 3000);
 setInterval(() => {
   setTimeout(() => {
     getApiData(chicagoTrainUrl, formatTrainCoords);
-  }, 7000);
+  }, 6000);
 
   setTimeout(() => {
     getApiData(chicagoBusUrl, formatBusCoords);
@@ -47,12 +47,19 @@ let formatTrainCoords = data => {
   let lon = data.ctatt.route[0].train[0].lon;
 
   sendCoords(lat, lon, "ctablue");
-};
 
+  let redLat = data.ctatt.route[1].train[0].lat;
+  let redLon = data.ctatt.route[1].train[0].lon;
+
+  setTimeout(() => {
+    sendCoords(redLat, redLon, "ctared");
+  }, 2000);
+};
 let formatBusCoords = data => {
   let parsedData = data["bustime-response"].vehicle;
+  const routes = ["4", "9", "20", "22", "34", "49", "55", "60", "62", "53"];
 
-  ["9", "20", "22", "53"].forEach(route => {
+  routes.forEach(route => {
     parsedData.some(bus => {
       let busDetail = {};
 
