@@ -3,7 +3,7 @@ const http = require("http");
 let CTA_TRAIN_KEY = process.env.CTA_TRAIN_KEY;
 let CTA_BUS_KEY = process.env.CTA_BUS_KEY;
 
-const chicagoTrainUrl = `http://lapi.transitchicago.com/api/1.0/ttpositions.aspx?key=${CTA_TRAIN_KEY}&rt=blue&outputType=JSON`;
+const chicagoTrainUrl = `http://lapi.transitchicago.com/api/1.0/ttpositions.aspx?key=${CTA_TRAIN_KEY}&rt=blue,red&outputType=JSON`;
 
 const laUrl = "http://api.metro.net/agencies/lametro/routes/10/vehicles/";
 
@@ -55,6 +55,7 @@ let formatTrainCoords = data => {
     sendCoords(redLat, redLon, "ctared");
   }, 2000);
 };
+
 let formatBusCoords = data => {
   let parsedData = data["bustime-response"].vehicle;
   const routes = ["4", "9", "20", "22", "34", "49", "55", "60", "62", "53"];
