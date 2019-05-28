@@ -15,12 +15,6 @@ const server = http.createServer((req, res) => {
 
 server.listen(process.env.PORT || 3000);
 
-// blue
-// Ashland 9
-// Madison 20
-// Clark 22
-// Pulaski 53
-
 setInterval(() => {
   setTimeout(() => {
     getApiData(chicagoTrainUrl, formatTrainCoords);
@@ -30,9 +24,9 @@ setInterval(() => {
     getApiData(chicagoBusUrl, formatBusCoords);
   }, 0);
 
-  setTimeout(() => {
-    getApiData(laUrl, formatLaCoords);
-  }, 12000);
+  // setTimeout(() => {
+  //   getApiData(laUrl, formatLaCoords);
+  // }, 12000);
 }, 15000);
 
 let formatLaCoords = data => {
